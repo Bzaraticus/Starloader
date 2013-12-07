@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Test</title>
+	<title>Starloader</title>
 
-	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="css/app.css">
 
 	<script>
 		(function() {
@@ -17,34 +17,45 @@
 </head>
 <body>
 	<div class="wrap">
-		<nav>
-			<ul>
-				<li>Mods</li>
-				<li>Something</li>
-				<li>Else</li>
-				<li>Yeah</li>
+		<nav class="mainnav">
+			<ul><!--
+				--><li><a href="#/modlist">Mods</a></li><!--
+				--><li><a href="#/options">Options</a></li><!--
+				--><li><a href="#/about">About</a></li>
 			</ul>
 		</nav>
-		<section class="content" ng-view>
-			
+		<section class="content">
+			<div class="scrollable" ng-view>
+				Loading...
+			</div>
 		</section>
+		<footer class="footer">
+			<div class="version">Starloader v0.0.1</div>
+			<div class="license">Licensed under <a href="#/license">The BSD 2-Clause License</a></div>
+		</footer>
 	</div>
 
-	<!-- Dependencies -->
-	<script src="vendor/q.min.js"></script>
+	<!-- External dependencies -->
+	<script src="js/external/q.min.js"></script>
+	<script src="js/external/angular.js"></script>
+	<script src="js/external/angular-route.js"></script>
 
-	<!-- Angular -->
-	<script src="vendor/angular.js"></script>
-	<script src="vendor/angular-route.js"></script>
-
-	<script src="loader.js"></script>
+	<!-- App -->
 	<script>
 		(function() {
+			// Initialize Starloader's angular module
 			window.starloader = angular.module('starloader', ['ngRoute']);
 
-			window.loadScripts('app/scripts', 'scripts', function() {
+			// Load the app's scripts
+			var appScript = document.createElement('script');
+			appScript.src = 'js/main.js?' + (new Date()).getTime().toString()
+
+			// And once those are loaded, start angular
+			appScript.addEventListener('load', function() {
 				angular.bootstrap(document, ['starloader']);
 			});
+
+			document.body.appendChild(appScript);
 		})();
 	</script>
 </body>

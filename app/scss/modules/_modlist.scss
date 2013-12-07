@@ -1,0 +1,56 @@
+.modlist-mods {
+	width: 100%;
+
+	margin: 1em 0;
+
+	border-collapse: collapse;
+
+	td,
+	th {
+		padding: 0.4em 0.8em;
+	}
+
+	th {
+		border: 1px solid #ccc;
+		background-color: #f4f4f4;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	td {
+		border: 1px solid #ccc;
+		background-color: #fff;
+	}
+
+	.modlist-mods-actions {
+		padding-right: 0.4em;
+		padding-left: 0.4em;
+
+		width: 130px;
+		text-align: center;
+	}
+
+	.modlist-mods-order {
+		background-color: #f4f4f4;
+		width: 42px;
+		text-align: center;
+	}
+}
+
+.modlist-controls {
+	display: flex;
+
+	.modlist-controls-installation,
+	.modlist-controls-launcher {
+		flex: 1 1 auto;
+	}
+
+	.modlist-controls-launcher {
+		text-align: right;
+	}
+
+	.btn {
+		margin-bottom: 0.4em;
+		white-space: nowrap;
+	}
+}

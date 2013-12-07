@@ -1,0 +1,152 @@
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+p {
+  margin: 1em 0;
+}
+
+body {
+  font: normal 62.5%/1.4 Arial, 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.3em 0.5em;
+  color: #444;
+  text-decoration: none;
+  background-color: transparent;
+  border: 1px solid #aaa;
+  border-radius: 2px;
+}
+.btn:hover {
+  border-color: #666;
+  background-color: #666;
+  color: #eee;
+}
+
+.wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainnav {
+  flex: 0 0 auto;
+  font-size: 1.4em;
+  background-color: #444;
+}
+.mainnav ul {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.mainnav li {
+  display: inline-block;
+  margin: 0;
+}
+.mainnav li a {
+  display: block;
+  padding: 8px 16px;
+  color: #eee;
+  text-decoration: none;
+  text-shadow: 0 -1px 3px rgba(0, 0, 0, 0.25);
+  border-left: 1px solid #555;
+  border-right: 1px solid #333;
+}
+.mainnav li a:hover {
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.5);
+  border-left-color: #333;
+  border-right-color: #333;
+}
+
+.content {
+  flex: 1 0 auto;
+  position: relative;
+  font-size: 1.2em;
+}
+.content .scrollable {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 1em;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.footer {
+  font-size: 1.1em;
+  flex: 0 0 auto;
+  padding: 0.4em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  border-top: 1px solid #aaa;
+}
+.footer .version,
+.footer .license {
+  flex: 1;
+}
+.footer .license {
+  text-align: right;
+}
+
+.modlist-mods {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+}
+.modlist-mods td,
+.modlist-mods th {
+  padding: 0.4em 0.8em;
+}
+.modlist-mods th {
+  border: 1px solid #ccc;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  text-align: center;
+}
+.modlist-mods td {
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+.modlist-mods .modlist-mods-actions {
+  padding-right: 0.4em;
+  padding-left: 0.4em;
+  width: 130px;
+  text-align: center;
+}
+.modlist-mods .modlist-mods-order {
+  background-color: #f4f4f4;
+  width: 42px;
+  text-align: center;
+}
+
+.modlist-controls {
+  display: flex;
+}
+.modlist-controls .modlist-controls-installation,
+.modlist-controls .modlist-controls-launcher {
+  flex: 1 1 auto;
+}
+.modlist-controls .modlist-controls-launcher {
+  text-align: right;
+}
+.modlist-controls .btn {
+  margin-bottom: 0.4em;
+  white-space: nowrap;
+}

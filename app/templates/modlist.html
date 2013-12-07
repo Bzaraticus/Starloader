@@ -1,19 +1,38 @@
+
+
 <table class="modlist-mods">
 	<thead>
 		<tr>
-			<th>Mod</th>
-			<th>Author</th>
-			<th>Actions</th>
+			<th class="modlist-mods-order">#</th>
+			<th class="modlist-mods-name">Mod</th>
+			<th class="modlist-mods-author">Author</th>
+			<th class="modlist-mods-actions">Actions</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr ng-repeat="mod in mods">
-			<td>{{mod.name}} v{{mod.version}}</td>
-			<td>{{mod.author}}</td>
-			<td>[R] [U]</td>
+			<td class="modlist-mods-order">{{mod.order}}</td>
+			<td class="modlist-mods-name">{{mod.name}} v{{mod.version}}</td>
+			<td class="modlist-mods-author">{{mod.author}}</td>
+			<td class="modlist-mods-actions">
+				<a href="#" class="btn">Update</a>
+				<a href="#" class="btn">Remove</a>
+			</td>
 		</tr>
 	</tbody>
 </table>
 
-<a href="#" class="btn-primary">Add from file</a>
-<a href="#" class="btn-primary">Add from folder</a>
+<div class="modlist-controls">
+	<div class="modlist-controls-installation">
+		<a href="#" class="btn">Add from file</a>
+		<a href="#" class="btn">Add from folder</a>
+	</div>
+	<div class="modlist-controls-launcher">
+		<a href="steam://run/211820" class="btn">Start launcher</a>
+	</div>
+</div>
+
+<h2>Help</h2>
+<p>
+	You can change the load order by dragging the lines.
+</p>

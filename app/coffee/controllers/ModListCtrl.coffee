@@ -1,4 +1,4 @@
-starloader.controller 'ModListCtrl', [
+window.starloader.controller 'ModListCtrl', [
 	'$scope',
 	($scope) ->
 		$scope.mods = [
@@ -6,6 +6,13 @@ starloader.controller 'ModListCtrl', [
 				"name": "Test mod"
 				"version": "1.0.0"
 				"author": "Test guy"
+				"order": 1
+			}
+			{
+				"name": "Megamod"
+				"version": "1.mega"
+				"author": "Megamega"
+				"order": 2
 			}
 		]
 

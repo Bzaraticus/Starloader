@@ -1,0 +1,20 @@
+.footer {
+	font-size: 1.1em;
+	flex: 0 0 auto;
+	padding: 0.4em;
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	border-top: 1px solid #aaa;
+
+	.version,
+	.license {
+		flex: 1;
+	}
+
+	.license {
+		text-align: right;
+	}
+}
