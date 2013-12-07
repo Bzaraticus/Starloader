@@ -1,0 +1,19 @@
+<table class="modlist-mods">
+	<thead>
+		<tr>
+			<th>Mod</th>
+			<th>Author</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="mod in mods">
+			<td>{{mod.name}} v{{mod.version}}</td>
+			<td>{{mod.author}}</td>
+			<td>[R] [U]</td>
+		</tr>
+	</tbody>
+</table>
+
+<a href="#" class="btn-primary">Add from file</a>
+<a href="#" class="btn-primary">Add from folder</a>

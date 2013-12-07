@@ -1,0 +1,24 @@
+[
+	{
+		"internal_name": "exampleguy-testmod",
+		"name": "Test Mod",
+		"author": "Example Guy",
+		"version": "0.1.2",
+		"order": 1,
+		"source": {
+			"type": "installed",
+			"path": "testmod"
+		}
+	},
+	{
+		"internal_name": "exampleguy-modfromfolder",
+		"name": "Mod from folder",
+		"author": "Example Guy",
+		"version": "0.0.1",
+		"order": 2,
+		"source": {
+			"type": "folder",
+			"path": "D:\\vagrant\\Oksidia\\www\\starloader\\app\\mods\\folderMod"
+		}
+	}
+]

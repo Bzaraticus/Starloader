@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Test</title>
+
+	<link rel="stylesheet" href="assets/css/main.css">
+
+	<script>
+		(function() {
+			var baseHref = document.createElement('base');
+			baseHref.href = window.location.pathname.toString();
+
+			document.getElementsByTagName('head')[0].appendChild(baseHref)
+		})();
+	</script>
+</head>
+<body>
+	<div class="wrap">
+		<nav>
+			<ul>
+				<li>Mods</li>
+				<li>Something</li>
+				<li>Else</li>
+				<li>Yeah</li>
+			</ul>
+		</nav>
+		<section class="content" ng-view>
+			
+		</section>
+	</div>
+
+	<!-- Dependencies -->
+	<script src="vendor/q.min.js"></script>
+
+	<!-- Angular -->
+	<script src="vendor/angular.js"></script>
+	<script src="vendor/angular-route.js"></script>
+
+	<script src="loader.js"></script>
+	<script>
+		(function() {
+			window.starloader = angular.module('starloader', ['ngRoute']);
+
+			window.loadScripts('app/scripts', 'scripts', function() {
+				angular.bootstrap(document, ['starloader']);
+			});
+		})();
+	</script>
+</body>
+</html>
