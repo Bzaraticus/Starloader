@@ -1,11 +1,11 @@
 (function() {
-  window.starloader.config([
+  angular.module('starloader').config([
     '$compileProvider', function($compileProvider) {
       return $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
     }
   ]);
 
-  window.starloader.config([
+  angular.module('starloader').config([
     '$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
       $routeProvider.when('/modlist', {
         templateUrl: './templates/modlist.html',

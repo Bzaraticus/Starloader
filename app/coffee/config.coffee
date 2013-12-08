@@ -1,10 +1,10 @@
-window.starloader.config [
+angular.module('starloader').config [
 	'$compileProvider',
 	($compileProvider) ->
 		$compileProvider.aHrefSanitizationWhitelist /^\s*(https?|ftp|mailto|file|tel):/
 ]
 
-window.starloader.config [
+angular.module('starloader').config [
 	'$routeProvider', '$locationProvider',
 	($routeProvider,   $locationProvider) ->
 		$routeProvider.when '/modlist', {

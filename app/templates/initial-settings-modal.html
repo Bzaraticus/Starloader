@@ -1,0 +1,35 @@
+<div class="modal-background">
+	<div class="modal">
+		<h3>First launch settings</h3>
+	
+		<p>
+			<label>
+				Path to Starbound:<br>
+				<input type="text" ng-model="config.gamepath">
+			</label>
+		</p>
+		<p>
+			<strong>Default paths:</strong><br>
+			<strong>Windows:</strong> C:\Program Files (x86)\Steam\SteamApps\common\Starbound<br>
+			<strong>OS X:</strong> ~/Library/Application Support/Steam/SteamApps/common/Starbound<br>
+			<strong>Linux:</strong> ~/.local/share/Steam/SteamApps/common/Starbound<br>
+		</p>
+	
+		<p>
+			<label>
+				Where to store mods:<br>
+				<input type="text" ng-model="config.modspath">
+			</label>
+		</p>
+		<p>
+			A good choice is &lt;starbound's path&gt;/mods, e.g.<br>
+			~/.local/share/Steam/SteamApps/common/Starbound/mods
+			<br><br>
+			If this folder doesn't exist, we will ask you if we can create it automatically.
+		</p>
+	
+		<p>
+			<input class="btn" type="button" value="Save settings" ng-click="saveAndClose()">
+		</p>
+	</div>
+</div>

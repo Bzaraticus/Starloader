@@ -1,9 +1,11 @@
-.mainnav {
+body > header {
 	flex: 0 0 auto;
 
 	font-size: 1.4em;
 	background-color: #444;
+}
 
+.mainnav {
 	ul {
 		margin: 0;
 		padding: 0;

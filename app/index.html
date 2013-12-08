@@ -16,7 +16,7 @@
 	</script>
 </head>
 <body>
-	<div class="wrap">
+	<header>
 		<nav class="mainnav">
 			<ul><!--
 				--><li><a href="#/modlist">Mods</a></li><!--
@@ -24,27 +24,26 @@
 				--><li><a href="#/about">About</a></li>
 			</ul>
 		</nav>
-		<section class="content">
-			<div class="scrollable" ng-view>
-				Loading...
-			</div>
-		</section>
-		<footer class="footer">
-			<div class="version">Starloader v0.0.1</div>
-			<div class="license">Licensed under <a href="#/license">The BSD 2-Clause License</a></div>
-		</footer>
-	</div>
+	</header>
+	<section class="content" ng-view>
+			Loading...
+	</section>
+	<footer>
+		<div class="version">Starloader v0.0.1</div>
+		<div class="license">Licensed under <a href="#/license">The BSD 2-Clause License</a></div>
+	</footer>
 
 	<!-- External dependencies -->
 	<script src="js/external/q.min.js"></script>
 	<script src="js/external/angular.js"></script>
 	<script src="js/external/angular-route.js"></script>
+	<script src="js/external/modal.js"></script>
 
 	<!-- App -->
 	<script>
 		(function() {
 			// Initialize Starloader's angular module
-			window.starloader = angular.module('starloader', ['ngRoute']);
+			angular.module('starloader', ['ngRoute', 'btford.modal']);
 
 			// Load the app's scripts
 			var appScript = document.createElement('script');

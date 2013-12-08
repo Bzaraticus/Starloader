@@ -1,20 +1,22 @@
-window.starloader.controller 'ModListCtrl', [
-	'$scope',
-	($scope) ->
-		$scope.mods = [
-			{
-				"name": "Test mod"
-				"version": "1.0.0"
-				"author": "Test guy"
-				"order": 1
-			}
-			{
-				"name": "Megamod"
-				"version": "1.mega"
-				"author": "Megamega"
-				"order": 2
-			}
-		]
+angular.module('starloader').controller 'ModListCtrl', [
+	'$scope', 'configHandler', 'modFolderHandler', 'modMetadataHandler', 'createModsFolderModal', 'initialSettingsModal',
+	($scope,   configHandler,   modFolderHandler,  modMetadataHandler,   createModsFolderModal,   initialSettingsModal) ->
+		fs = require 'fs'
+		config = configHandler.get()
 
-		$scope.text = 'yay'
+		if not config.gamepath? or not config.modspath?
+			initialSettingsModal.activate()
+			return
+		
+		if not modFolderHandler.exists()
+			createModsFolderModal.activate()
+			return
+
+		modMetadata = modMetadataHandler.get()
+		if modMetadata is null
+			modMetadataHandler.create()
+			modMetadataHandler.refresh()
+			modMetadata = modMetadataHandler.get()
+
+		$scope.mods = modMetadata
 ]

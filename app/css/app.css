@@ -3,11 +3,12 @@ html {
 }
 
 body {
-  min-height: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 *, *:before, *:after {
@@ -37,17 +38,12 @@ body {
   color: #eee;
 }
 
-.wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.mainnav {
+body > header {
   flex: 0 0 auto;
   font-size: 1.4em;
   background-color: #444;
 }
+
 .mainnav ul {
   margin: 0;
   padding: 0;
@@ -73,36 +69,51 @@ body {
 }
 
 .content {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   position: relative;
   font-size: 1.2em;
-}
-.content .scrollable {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   padding: 0 1em;
   overflow-x: hidden;
   overflow-y: scroll;
 }
 
-.footer {
-  font-size: 1.1em;
+body > footer {
   flex: 0 0 auto;
   padding: 0.4em;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  font-size: 1.1em;
   border-top: 1px solid #aaa;
 }
-.footer .version,
-.footer .license {
+body > footer .version,
+body > footer .license {
   flex: 1;
 }
-.footer .license {
+body > footer .license {
   text-align: right;
+}
+
+.modal-background {
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  flex-align: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  font-size: 1.2em;
+  flex: 0 0 auto;
+  background-color: #eee;
+  padding: 0 1em;
+  border-radius: 8px;
 }
 
 .modlist-mods {
