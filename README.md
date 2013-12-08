@@ -1,0 +1,1 @@
+A mod manager for Starbound. Still veri WIP. Runs on node-webkit. Wobe netkit.
