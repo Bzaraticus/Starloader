@@ -144,7 +144,7 @@ angular.module('starloader').factory 'modInstaller', [
 							callback "Mod metadata file (mod.json) was not found in the folder"
 							return
 
-						fs.readFile modMetadataFilePath, (err, data) ->
+						fs.readFile metadataFilePath, (err, data) ->
 							try
 								modMetadata = JSON.parse data
 							catch e
