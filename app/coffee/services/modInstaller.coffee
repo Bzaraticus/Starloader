@@ -6,20 +6,22 @@ angular.module('starloader').factory 'modInstaller', [
 		AdmZip = require 'adm-zip'
 		rimraf = require 'rimraf'
 
-		config = configHandler.get()
 		bootstraps = [
-			{path: pathUtil.join(config.gamepath, '/win32'), sourcePrefix: '../'},
-			{path: pathUtil.join(config.gamepath, '/Starbound.app/Contents/MacOS'), sourcePrefix: '../../../'},
-			{path: pathUtil.join(config.gamepath, '/linux32'), sourcePrefix: '../'},
-			{path: pathUtil.join(config.gamepath, '/linux64'), sourcePrefix: '../'}
+			{path: '/win32', sourcePrefix: '../'},
+			{path: '/Starbound.app/Contents/MacOS', sourcePrefix: '../../../'},
+			{path: '/linux32', sourcePrefix: '../'},
+			{path: '/linux64', sourcePrefix: '../'}
 		]
 
-		bootstraps.map (bootstrap) ->
-			bootstrap.path = pathUtil.join(bootstrap.path, 'bootstrap.config')
-			return bootstrap
+		config = configHandler.get()
 
 		updateBootstraps = () ->
 			modMetadata = [].concat(modMetadataHandler.get())
+
+			localBootstraps = bootstraps.map (bootstrap) ->
+				localBootstrap = angular.extend {}, bootstrap
+				localBootstrap.path = pathUtil.join(config.gamepath, localBootstrap.path, 'bootstrap.config')
+				return localBootstrap
 
 			# Use a relative path to the mods folder from the game folder
 			# if the game path exists in the mods path.
@@ -41,7 +43,7 @@ angular.module('starloader').factory 'modInstaller', [
 					installedAssetSources.push {source: pathUtil.join(relativeModsPath, mod.source.path), order: mod.order}
 
 			# Update the asset sources to each bootstrap file
-			for bootstrap in bootstraps
+			for bootstrap in localBootstraps
 				# Resolve the "local" (specific to this bootstrap file) paths for the installed mods
 				localInstalledAssetSources = installedAssetSources.map (assetSource) ->
 					resolvedSource = angular.extend {}, assetSource
@@ -289,6 +291,24 @@ angular.module('starloader').factory 'modInstaller', [
 
 			modMetadataHandler.save()
 			updateBootstraps()
+
+		generateMergedPlayerConfig = () ->
+			###
+				TODO BLARGH
+			###
+			allModMetadata = [].concat(modMetadataHandler.get())
+
+			configFiles = pathUtil.join config.gamepath, 'assets/player.config'
+
+			for modMetadata in allModMetadata
+				modPath = ''
+				if modMetadata.source.type is 'installed'
+					modPath = pathUtil.join config.modspath, modMetadata.source.path
+				else
+					modPath = modMetadata.source.path
+
+				if fs.existsSync fileUtil.join(modPath, 'player.config')
+					configFiles.push fileUtil.join(modPath, 'player.config')
 
 		return {
 			updateBootstraps: updateBootstraps

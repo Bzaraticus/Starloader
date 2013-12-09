@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": "app/index.html",
   "window": {
+  	"toolbar": false,
     "title": "Starloader"
   },
   "dependencies": {

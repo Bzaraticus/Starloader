@@ -5,15 +5,9 @@
       fs = require('fs');
       $scope.config = configHandler.get();
       return $scope.saveAndClose = function() {
-        var config;
-        configHandler.save($scope.config);
+        configHandler.save();
         initialSettingsModal.deactivate();
-        config = configHandler.get();
-        if (!fs.existsSync(config.modspath)) {
-          return createModsFolderModal.activate();
-        } else {
-          return $route.reload();
-        }
+        return $route.reload();
       };
     }
   ]);

@@ -1,34 +1,36 @@
 (function() {
   angular.module('starloader').factory('modInstaller', [
     'configHandler', 'modMetadataHandler', function(configHandler, modMetadataHandler) {
-      var AdmZip, bootstraps, config, discoverArchiveInstallations, fs, installFromFolder, installFromZip, pathUtil, refreshAllModMetadata, refreshMods, rimraf, uninstall, uninstallFromArchive, uninstallFromFolder, updateBootstraps;
+      var AdmZip, bootstraps, config, discoverArchiveInstallations, fs, generateMergedPlayerConfig, installFromFolder, installFromZip, pathUtil, refreshAllModMetadata, refreshMods, rimraf, uninstall, uninstallFromArchive, uninstallFromFolder, updateBootstraps;
       fs = require('fs');
       pathUtil = require('path');
       AdmZip = require('adm-zip');
       rimraf = require('rimraf');
-      config = configHandler.get();
       bootstraps = [
         {
-          path: pathUtil.join(config.gamepath, '/win32'),
+          path: '/win32',
           sourcePrefix: '../'
         }, {
-          path: pathUtil.join(config.gamepath, '/Starbound.app/Contents/MacOS'),
+          path: '/Starbound.app/Contents/MacOS',
           sourcePrefix: '../../../'
         }, {
-          path: pathUtil.join(config.gamepath, '/linux32'),
+          path: '/linux32',
           sourcePrefix: '../'
         }, {
-          path: pathUtil.join(config.gamepath, '/linux64'),
+          path: '/linux64',
           sourcePrefix: '../'
         }
       ];
-      bootstraps.map(function(bootstrap) {
-        bootstrap.path = pathUtil.join(bootstrap.path, 'bootstrap.config');
-        return bootstrap;
-      });
+      config = configHandler.get();
       updateBootstraps = function() {
-        var absoluteAssetSources, assetSources, bootstrap, bootstrapData, installedAssetSources, localInstalledAssetSources, mod, modMetadata, relativeModsPath, _i, _j, _len, _len1, _results;
+        var absoluteAssetSources, assetSources, bootstrap, bootstrapData, installedAssetSources, localBootstraps, localInstalledAssetSources, mod, modMetadata, relativeModsPath, _i, _j, _len, _len1, _results;
         modMetadata = [].concat(modMetadataHandler.get());
+        localBootstraps = bootstraps.map(function(bootstrap) {
+          var localBootstrap;
+          localBootstrap = angular.extend({}, bootstrap);
+          localBootstrap.path = pathUtil.join(config.gamepath, localBootstrap.path, 'bootstrap.config');
+          return localBootstrap;
+        });
         if (config.modspath.indexOf(config.gamepath) !== -1) {
           relativeModsPath = pathUtil.relative(config.gamepath, config.modspath);
         } else {
@@ -59,8 +61,8 @@
           }
         }
         _results = [];
-        for (_j = 0, _len1 = bootstraps.length; _j < _len1; _j++) {
-          bootstrap = bootstraps[_j];
+        for (_j = 0, _len1 = localBootstraps.length; _j < _len1; _j++) {
+          bootstrap = localBootstraps[_j];
           localInstalledAssetSources = installedAssetSources.map(function(assetSource) {
             var resolvedSource;
             resolvedSource = angular.extend({}, assetSource);
@@ -301,6 +303,31 @@
         }
         modMetadataHandler.save();
         return updateBootstraps();
+      };
+      generateMergedPlayerConfig = function() {
+        /*
+        				TODO BLARGH
+        */
+
+        var allModMetadata, configFiles, modMetadata, modPath, _i, _len, _results;
+        allModMetadata = [].concat(modMetadataHandler.get());
+        configFiles = pathUtil.join(config.gamepath, 'assets/player.config');
+        _results = [];
+        for (_i = 0, _len = allModMetadata.length; _i < _len; _i++) {
+          modMetadata = allModMetadata[_i];
+          modPath = '';
+          if (modMetadata.source.type === 'installed') {
+            modPath = pathUtil.join(config.modspath, modMetadata.source.path);
+          } else {
+            modPath = modMetadata.source.path;
+          }
+          if (fs.existsSync(fileUtil.join(modPath, 'player.config'))) {
+            _results.push(configFiles.push(fileUtil.join(modPath, 'player.config')));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       };
       return {
         updateBootstraps: updateBootstraps,

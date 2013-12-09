@@ -34,6 +34,7 @@ module.exports = function (grunt) {
 
         nodewebkit: {
             options: {
+                version: '0.8.1',
                 build_dir: './releases',
                 mac: true,
                 win: true,

@@ -6,12 +6,7 @@ angular.module('starloader').controller 'InitialSettingsModalCtrl', [
 		$scope.config = configHandler.get()
 
 		$scope.saveAndClose = () ->
-			configHandler.save($scope.config)
+			configHandler.save()
 			initialSettingsModal.deactivate()
-
-			config = configHandler.get()
-			if not fs.existsSync(config.modspath)
-				createModsFolderModal.activate()
-			else
-				$route.reload()
+			$route.reload()
 ]

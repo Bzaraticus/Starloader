@@ -5,18 +5,29 @@ angular.module('starloader').factory 'configHandler', () ->
 
 	refresh = () ->
 		if fs.existsSync configFile
-			config = JSON.parse fs.readFileSync(configFile)
+			try
+				configJson = fs.readFileSync configFile, {encoding: 'utf8'}
+				config = JSON.parse configJson
+			catch e
+				console.error e.toString()
 		else
-			create();
-			config = {}
+			create()
+
+		return
 
 	save = (userConfig) ->
-		newConfig = angular.extend {}, config, userConfig
-		fs.writeFileSync configFile, JSON.stringify(newConfig)
-		refresh()
+		if userConfig?
+			angular.extend config, userConfig
+
+		fs.writeFileSync configFile, angular.toJson(config)
+
+		return
 
 	create = () ->
-		fs.writeFileSync configFile, '{}'
+		config = {}
+		save()
+
+		return
 
 	refresh()
 

@@ -1,21 +1,22 @@
 (function() {
   angular.module('starloader').factory('modMetadataHandler', [
     'configHandler', function(configHandler) {
-      var addMod, create, defaultModMetadata, fs, mods, modsFilePath, refresh, refreshModsFilePath, removeMod, save, sortByOrder;
+      var addMod, create, defaultModMetadata, fs, mods, modsFilePath, pathUtil, refresh, refreshModsFilePath, removeMod, save, sortByOrder;
       fs = require('fs');
-      modsFilePath = '';
-      mods = [];
+      pathUtil = require('path');
+      modsFilePath = null;
+      mods = null;
       defaultModMetadata = {
         "internal-name": "",
-        name: "",
-        author: "",
-        version: "",
-        order: 0,
-        source: {
-          type: "",
-          path: ""
+        "name": "",
+        "author": "",
+        "version": "",
+        "order": 0,
+        "source": {
+          "type": "",
+          "path": ""
         },
-        active: true
+        "active": true
       };
       sortByOrder = function(a, b) {
         if (a.order > b.order) {
@@ -30,11 +31,16 @@
         var config;
         configHandler.refresh();
         config = configHandler.get();
-        return modsFilePath = config.modspath + '/mods.json';
+        if (config.modspath != null) {
+          return modsFilePath = pathUtil.join(config.modspath, 'mods.json');
+        } else {
+          return modsFilePath = null;
+        }
       };
       refresh = function() {
         refreshModsFilePath();
-        if (fs.existsSync(modsFilePath)) {
+        console.log('reading mods from', modsFilePath);
+        if (modsFilePath !== null && fs.existsSync(modsFilePath)) {
           mods = JSON.parse(fs.readFileSync(modsFilePath, {
             encoding: 'utf8'
           }));
@@ -60,7 +66,8 @@
       };
       create = function() {
         refreshModsFilePath();
-        return fs.writeFileSync(modsFilePath, '[]');
+        fs.writeFileSync(modsFilePath, '[]');
+        return refresh();
       };
       addMod = function(userModMetadata) {
         var modMetadata;

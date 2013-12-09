@@ -2,17 +2,18 @@ angular.module('starloader').factory 'modMetadataHandler', [
 	'configHandler',
 	(configHandler) ->
 		fs = require 'fs'
-		modsFilePath = ''
-		mods = []
+		pathUtil = require 'path'
+		modsFilePath = null
+		mods = null
 
 		defaultModMetadata =
 			"internal-name": ""
-			name: ""
-			author: ""
-			version: ""
-			order: 0
-			source: {type: "", path: ""}
-			active: true
+			"name": ""
+			"author": ""
+			"version": ""
+			"order": 0
+			"source": {"type": "", "path": ""}
+			"active": true
 
 		sortByOrder =  (a, b) ->
 			if a.order > b.order then return 1
@@ -22,14 +23,18 @@ angular.module('starloader').factory 'modMetadataHandler', [
 		refreshModsFilePath = () ->
 			configHandler.refresh()
 			config = configHandler.get()
-			modsFilePath = config.modspath + '/mods.json'
+
+			if config.modspath?
+				modsFilePath = pathUtil.join config.modspath, 'mods.json'
+			else
+				modsFilePath = null
 
 		refresh = () ->
 			refreshModsFilePath()
 
-			if fs.existsSync(modsFilePath)
+			console.log 'reading mods from', modsFilePath
+			if modsFilePath isnt null and fs.existsSync(modsFilePath)
 				mods = JSON.parse fs.readFileSync(modsFilePath, {encoding: 'utf8'})
-
 				mods.sort sortByOrder
 			else
 				mods = null
@@ -52,6 +57,7 @@ angular.module('starloader').factory 'modMetadataHandler', [
 		create = () ->
 			refreshModsFilePath()
 			fs.writeFileSync modsFilePath, '[]'
+			refresh()
 
 		addMod = (userModMetadata) ->
 			modMetadata = angular.extend {}, defaultModMetadata, userModMetadata

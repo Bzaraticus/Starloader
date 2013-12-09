@@ -5,21 +5,30 @@
     configFile = './config.json';
     config = {};
     refresh = function() {
+      var configJson, e;
       if (fs.existsSync(configFile)) {
-        return config = JSON.parse(fs.readFileSync(configFile));
+        try {
+          configJson = fs.readFileSync(configFile, {
+            encoding: 'utf8'
+          });
+          config = JSON.parse(configJson);
+        } catch (_error) {
+          e = _error;
+          console.error(e.toString());
+        }
       } else {
         create();
-        return config = {};
       }
     };
     save = function(userConfig) {
-      var newConfig;
-      newConfig = angular.extend({}, config, userConfig);
-      fs.writeFileSync(configFile, JSON.stringify(newConfig));
-      return refresh();
+      if (userConfig != null) {
+        angular.extend(config, userConfig);
+      }
+      fs.writeFileSync(configFile, angular.toJson(config));
     };
     create = function() {
-      return fs.writeFileSync(configFile, '{}');
+      config = {};
+      save();
     };
     refresh();
     return {
