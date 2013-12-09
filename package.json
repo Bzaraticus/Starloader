@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "app/index.html",
   "window": {
-  	"toolbar": false,
+    "toolbar": false,
     "title": "Starloader"
   },
   "dependencies": {
@@ -13,11 +13,12 @@
     "rimraf": "~2.2.4"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "grunt": "~0.4.2",
     "grunt-cli": "~0.1.11",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-concat": "~0.3.0",
-    "grunt-node-webkit-builder": "~0.1.13"
+    "grunt-node-webkit-builder": "~0.1.13",
+    "grunt-contrib-compass": "~0.7.0"
   }
 }
