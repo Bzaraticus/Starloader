@@ -21,6 +21,7 @@
     create = function() {
       return fs.writeFileSync(configFile, '{}');
     };
+    refresh();
     return {
       get: function() {
         return config;

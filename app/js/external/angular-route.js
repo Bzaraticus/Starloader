@@ -579,7 +579,6 @@ function $RouteProvider(){
         }
       });
       // No route matched; fallback to "otherwise" route
-      console.log('matched route:', match);
       return match || routes[null] && inherit(routes[null], {params: {}, pathParams:{}});
     }
 

@@ -4,19 +4,29 @@
 	<thead>
 		<tr>
 			<th class="modlist-mods-order">#</th>
+			<th class="modlist-mods-active">
+				<abbr title="Active">A</abbr>
+			</th>
 			<th class="modlist-mods-name">Mod</th>
 			<th class="modlist-mods-author">Author</th>
 			<th class="modlist-mods-actions">Actions</th>
 		</tr>
 	</thead>
-	<tbody>
+	<tbody ui-sortable="sortableOptions" ng-model="mods">
 		<tr ng-repeat="mod in mods">
 			<td class="modlist-mods-order">{{mod.order}}</td>
+			<td class="modlist-mods-active">
+				<input type="checkbox" ng-change="saveModMetadata()" ng-model="mod.active">
+			</td>
 			<td class="modlist-mods-name">{{mod.name}} v{{mod.version}}</td>
 			<td class="modlist-mods-author">{{mod.author}}</td>
 			<td class="modlist-mods-actions">
-				<a href="#" class="btn">Update</a>
-				<a href="#" class="btn">Remove</a>
+				<label class="filechooser-container btn">
+					<input type="file" class="filechooser" onchange="angular.element(this).scope().updateModFromInput(this)">
+					<span style="display: none" class="update-internal-name">{{mod['internal-name']}}</span>
+					<span>Update</span>
+				</label>
+				<a href="#" class="btn" ng-click="uninstallMod(mod)">Remove</a>
 			</td>
 		</tr>
 	</tbody>
@@ -24,8 +34,15 @@
 
 <div class="modlist-controls">
 	<div class="modlist-controls-installation">
-		<a href="#" class="btn">Add from file</a>
-		<a href="#" class="btn">Add from folder</a>
+		<label class="filechooser-container btn">
+			<input type="file" class="filechooser" onchange="angular.element(this).scope().addFromFile(this.value)">
+			<span>Add from file</span>
+		</label>
+		<label class="filechooser-container btn">
+			<input type="file" class="filechooser" onchange="angular.element(this).scope().addFromFolder(this.value)" nwdirectory>
+			<span>Add from folder</span>
+		</label>
+		<a href="javascript:void(0)" class="btn" ng-click="refreshMods()">Refresh</a>
 	</div>
 	<div class="modlist-controls-launcher">
 		<a href="steam://run/211820" class="btn">Start launcher</a>

@@ -15,7 +15,8 @@
         templateUrl: './templates/license.html'
       });
       $routeProvider.when('/options', {
-        templateUrl: './templates/options.html'
+        templateUrl: './templates/options.html',
+        controller: 'OptionsCtrl'
       });
       $routeProvider.when('/about', {
         templateUrl: './templates/about.html'

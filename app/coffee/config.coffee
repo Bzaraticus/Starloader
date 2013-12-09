@@ -18,6 +18,7 @@ angular.module('starloader').config [
 
 		$routeProvider.when '/options', {
 			templateUrl: './templates/options.html'
+			controller: 'OptionsCtrl'
 		}
 
 		$routeProvider.when '/about', {

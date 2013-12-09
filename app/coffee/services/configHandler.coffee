@@ -18,6 +18,8 @@ angular.module('starloader').factory 'configHandler', () ->
 	create = () ->
 		fs.writeFileSync configFile, '{}'
 
+	refresh()
+
 	return {
 		get: () -> config
 		refresh: refresh

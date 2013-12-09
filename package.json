@@ -1,20 +1,22 @@
 {
-	"name": "starloader",
-	"main": "app/index.html",
-
-	"window": {
-		"title": "Starloader"
-	},
-
-	"dependencies": {
-		"walk": "~2.2.1"
-	},
-	
-	"devDependencies": {
-		"grunt": "~0.4.1",
-		"grunt-cli": "~0.1.11",
-		"grunt-contrib-coffee": "~0.7.0",
-		"grunt-contrib-watch": "~0.5.3",
-		"grunt-contrib-concat": "~0.3.0"
-	}
+  "name": "starloader",
+  "author": "Miikka Virtanen",
+  "version": "1.0.0",
+  "main": "app/index.html",
+  "window": {
+    "title": "Starloader"
+  },
+  "dependencies": {
+    "walk": "~2.2.1",
+    "adm-zip": "~0.4.3",
+    "rimraf": "~2.2.4"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.11",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-node-webkit-builder": "~0.1.13"
+  }
 }

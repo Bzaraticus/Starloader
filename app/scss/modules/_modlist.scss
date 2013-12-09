@@ -35,6 +35,11 @@
 		width: 42px;
 		text-align: center;
 	}
+
+	.modlist-mods-active {
+		width: 30px;
+		text-align: center;
+	}
 }
 
 .modlist-controls {
@@ -52,5 +57,14 @@
 	.btn {
 		margin-bottom: 0.4em;
 		white-space: nowrap;
+	}
+}
+
+.filechooser-container {
+	position: relative;
+	display: inline-block;
+
+	.filechooser {
+		display: none;
 	}
 }

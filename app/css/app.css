@@ -19,6 +19,11 @@ p {
   margin: 1em 0;
 }
 
+abbr {
+  border-bottom: 1px dotted #aaa;
+  cursor: help;
+}
+
 body {
   font: normal 62.5%/1.4 Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
@@ -31,6 +36,7 @@ body {
   background-color: transparent;
   border: 1px solid #aaa;
   border-radius: 2px;
+  cursor: pointer;
 }
 .btn:hover {
   border-color: #666;
@@ -103,7 +109,6 @@ body > footer .license {
   bottom: 0;
   display: flex;
   align-items: center;
-  flex-align: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
 }
@@ -146,6 +151,10 @@ body > footer .license {
   width: 42px;
   text-align: center;
 }
+.modlist-mods .modlist-mods-active {
+  width: 30px;
+  text-align: center;
+}
 
 .modlist-controls {
   display: flex;
@@ -160,4 +169,12 @@ body > footer .license {
 .modlist-controls .btn {
   margin-bottom: 0.4em;
   white-space: nowrap;
+}
+
+.filechooser-container {
+  position: relative;
+  display: inline-block;
+}
+.filechooser-container .filechooser {
+  display: none;
 }

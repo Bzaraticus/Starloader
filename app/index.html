@@ -28,22 +28,27 @@
 	<section class="content" ng-view>
 			Loading...
 	</section>
-	<footer>
-		<div class="version">Starloader v0.0.1</div>
+	<footer ng-controller="FooterCtrl">
+		<div class="version">Starloader {{version}}</div>
 		<div class="license">Licensed under <a href="#/license">The BSD 2-Clause License</a></div>
 	</footer>
 
 	<!-- External dependencies -->
+	<script src="js/external/jquery-2.0.3.min.js"></script>
+	<script src="js/external/jquery-ui-1.10.3.custom.min.js"></script>
+
 	<script src="js/external/q.min.js"></script>
+
 	<script src="js/external/angular.js"></script>
 	<script src="js/external/angular-route.js"></script>
 	<script src="js/external/modal.js"></script>
+	<script src="js/external/sortable.js"></script>
 
 	<!-- App -->
 	<script>
 		(function() {
 			// Initialize Starloader's angular module
-			angular.module('starloader', ['ngRoute', 'btford.modal']);
+			angular.module('starloader', ['ngRoute', 'btford.modal', 'ui.sortable']);
 
 			// Load the app's scripts
 			var appScript = document.createElement('script');
