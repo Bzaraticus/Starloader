@@ -1,4 +1,4 @@
-angular.module('starloader').factory 'configHandler', () ->
+angular.module('starloader').factory 'config', () ->
 	fs = require 'fs'
 	configFile = './config.json'
 	config = {}
@@ -14,6 +14,12 @@ angular.module('starloader').factory 'configHandler', () ->
 			create()
 
 		return
+
+	get = (prop) ->
+		if prop?
+			return config.prop
+		else
+			return config
 
 	save = (userConfig) ->
 		if userConfig?
@@ -32,7 +38,7 @@ angular.module('starloader').factory 'configHandler', () ->
 	refresh()
 
 	return {
-		get: () -> config
+		get: get
 		refresh: refresh
 		save: save
 		create: create

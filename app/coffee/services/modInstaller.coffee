@@ -1,77 +1,50 @@
 angular.module('starloader').factory 'modInstaller', [
-	'configHandler', 'modMetadataHandler',
-	(configHandler,   modMetadataHandler) ->
-		fs = require 'fs'
+	'config', 'modRepository',
+	(config,   modRepository) ->
+		# Node modules
+		fs       = require 'fs'
 		pathUtil = require 'path'
-		AdmZip = require 'adm-zip'
-		rimraf = require 'rimraf'
+		AdmZip   = require 'adm-zip'
+		rimraf   = require 'rimraf'
 
-		bootstraps = [
+		# Information about the platform-dependant bootstrap.config files
+		_bootstraps = [
 			{path: '/win32', sourcePrefix: '../'},
 			{path: '/Starbound.app/Contents/MacOS', sourcePrefix: '../../../'},
 			{path: '/linux32', sourcePrefix: '../'},
 			{path: '/linux64', sourcePrefix: '../'}
 		]
 
-		config = configHandler.get()
-
-		updateBootstraps = () ->
-			modMetadata = [].concat(modMetadataHandler.get())
-
-			localBootstraps = bootstraps.map (bootstrap) ->
+		# Returns the absolute paths to the bootstrap files
+		_getBootstrapPaths = () ->
+			return bootstraps.map (bootstrap) ->
 				localBootstrap = angular.extend {}, bootstrap
-				localBootstrap.path = pathUtil.join(config.gamepath, localBootstrap.path, 'bootstrap.config')
+				localBootstrap.path = pathUtil.join(config.get('gamepath'), localBootstrap.path, 'bootstrap.config')
 				return localBootstrap
 
-			# Use a relative path to the mods folder from the game folder
-			# if the game path exists in the mods path.
-			if config.modspath.indexOf(config.gamepath) isnt -1
-				relativeModsPath = pathUtil.relative config.gamepath, config.modspath
-			else
-				relativeModsPath = config.modspath
+		# Updates the bootstrap files
+		_updateBootstraps = () ->
+			localBootstraps = getBootstrapPaths()
+			modsToInstall = modRepository.getActive()
 
-			installedAssetSources = [{source: 'assets', order: 99999}]
-			absoluteAssetSources = []
-
-			# Resolve the correct paths for the mods and only use active mods
-			for mod in modMetadata
-				if mod.active is false then continue
-
-				if mod.source.type is 'folder'
-					absoluteAssetSources.push {source: mod.source.path, order: mod.order}
-				else if mod.source.type is 'installed'
-					installedAssetSources.push {source: pathUtil.join(relativeModsPath, mod.source.path), order: mod.order}
-
-			# Update the asset sources to each bootstrap file
 			for bootstrap in localBootstraps
-				# Resolve the "local" (specific to this bootstrap file) paths for the installed mods
-				localInstalledAssetSources = installedAssetSources.map (assetSource) ->
-					resolvedSource = angular.extend {}, assetSource
-					resolvedSource.source = pathUtil.join bootstrap.sourcePrefix, assetSource.source
+				assetSources = []
 
-					return resolvedSource
+				for modMetadata in modsToInstall
+					assetSources.push modRepository.getPath(modMetadata, bootstrap.sourcePrefix)
 
-				# Combine the local and absolute sources and sort them by load order
-				assetSources = localInstalledAssetSources.concat(absoluteAssetSources)
-				assetSources.sort (a, b) ->
-					if a.order > b.order then return 1
-					if a.order < b.order then return -1
-					return 0
+				assetSources.push pathUtil.normalize(pathUtil.join(bootstrap.sourcePrefix, 'assets'))
 
-				# Use forward slashes even on Windows
-				assetSources.map (assetSource) ->
-					assetSource.source = assetSource.source.replace /[\\\/]+/g, '/'
-					return assetSource
-				
 				# Get the current bootstrap file and update its asset sources
 				bootstrapData = JSON.parse fs.readFileSync(bootstrap.path)
-
-				# Use only the source/path part, the order is irrelevant at this point
-				bootstrapData.assetSources = assetSources.map (assetSource) -> assetSource.source
-
+				bootstrapData.assetSources = assetSources
 				fs.writeFileSync bootstrap.path, JSON.stringify(bootstrapData)
 
+		# Installs a mod from a .zip archive specified by "path".
 		installFromZip = (path, callback) ->
+			# Should we create a default metadata file if one doesn't exist?
+			createDefaultMetadataFile = false
+
 			if pathUtil.extname(path) isnt '.zip'
 				callback "File is not a .zip archive"
 				return
@@ -80,32 +53,37 @@ angular.module('starloader').factory 'modInstaller', [
 				zip = new AdmZip(path)
 			catch e
 				callback e.toString()
+				return
 
 			# Make sure the mod has a metadata file first
 			metadataEntry = zip.getEntry('mod.json')
 			if metadataEntry is null
-				callback "Mod metadata file (mod.json) was not found in the archive"
-				return
+				createDefaultMetadataFile = true
 
-			try
-				modMetadata = JSON.parse metadataEntry.getData().toString('utf8')
-			catch e
-				callback "Invalid mod metadata (mod.json)"
-				return
-			
-			if not modMetadata["internal-name"]? or modMetadata["internal-name"] is ""
-				callback "Invalid internal name for mod"
-				return
+				modMetadata = {}
+				modMetadata["internal-name"] = pathUtil.basename(path, '.zip').replace(/[^a-zA-Z0-9_\-]+/g, '_')
+				modMetadata["name"] = modMetadata["internal-name"]
+			else
+				try
+					modMetadata = JSON.parse metadataEntry.getData().toString('utf8')
+				catch e
+					callback "Invalid mod metadata (mod.json)"
+					return
+				
+				if not modMetadata["internal-name"]? or modMetadata["internal-name"] is ""
+					callback "Invalid internal name for mod"
+					return
 
 			# The folder where the mod is stored is named after the internal name
-			dirname = modMetadata["internal-name"].replace /[^a-zA-Z0-9-_]+/g, '-'
+			dirname = modMetadata["internal-name"].replace /[^a-zA-Z0-9_\-]+/g, '_'
 
 			if dirname is ""
 				callback "Empty filename"
 				return
 
-			installPath = pathUtil.join(config.modspath, dirname)
+			installPath = pathUtil.join(config.get('modspath'), dirname)
 
+			# Attempt to install the mod
 			fs.exists installPath, (exists) ->
 				if exists
 					callback "A mod with this name already exists. Try updating the existing one!"
@@ -115,17 +93,22 @@ angular.module('starloader').factory 'modInstaller', [
 				fs.mkdir installPath, () ->
 					zip.extractAllTo installPath
 
+					# Create the mod metadata file if one didn't exist
+					if createDefaultMetadataFile
+						metadataFilePath = pathUtil.join(installPath, 'mod.json')
+						fs.writeFileSync metadataFilePath, angular.toJson(modMetadata)
+
 					# Save the mod's metadata
 					modMetadata.source =
 						type: 'installed'
 						path: dirname
 
-					modMetadataHandler.addMod modMetadata
-					modMetadataHandler.save()
-					updateBootstraps()
+					modRepository.save modMetadata
+					_updateBootstraps()
 
 					callback()
 
+		# Installs a mod by loading it from the folder specified by "path"
 		installFromFolder = (path, callback) ->
 			metadataFilePath = pathUtil.join(path, 'mod.json')
 
@@ -159,29 +142,29 @@ angular.module('starloader').factory 'modInstaller', [
 								type: 'folder'
 								path: path
 
-							modMetadataHandler.addMod modMetadata
-							modMetadataHandler.save()
-							updateBootstraps()
+							modRepository.save modMetadata
+							_updateBootstraps()
 
 							callback()
 
 			return
 
+		# Uninstalls the mod specified by modMetadata
 		uninstall = (modMetadata, callback) ->
 			if modMetadata.source.type is 'installed'
-				uninstallFromArchive modMetadata, callback
+				_uninstallFromArchive modMetadata, callback
 			else if modMetadata.source.type is 'folder'
-				uninstallFromFolder modMetadata, callback
+				_uninstallFromFolder modMetadata, callback
 
 			return
 
-		uninstallFromArchive = (modMetadata, callback) ->
-			modPath = pathUtil.join config.modspath, modMetadata.source.path
+		# Uninstalls the archive mod specified by modMetadata
+		_uninstallFromArchive = (modMetadata, callback) ->
+			modPath = pathUtil.join config.get('modspath'), modMetadata.source.path
 
 			finalize = () ->
-				modMetadataHandler.removeMod modMetadata
-				modMetadataHandler.save()
-				updateBootstraps()
+				modRepository.remove modMetadata
+				_updateBootstraps()
 
 				if callback then callback()
 
@@ -195,26 +178,25 @@ angular.module('starloader').factory 'modInstaller', [
 
 			return
 
-		uninstallFromFolder = (modMetadata, callback) ->
-			modMetadataHandler.removeMod modMetadata
-			modMetadataHandler.save()
-			updateBootstraps()
+		# Uninstalls the folder mod specified by modMetadata
+		_uninstallFromFolder = (modMetadata, callback) ->
+			modRepository.remove modMetadata
+			_updateBootstraps()
 
 			callback()
 
 			return
 
 		refreshMods = () ->
-			discoverArchiveInstallations()
-			refreshAllModMetadata()
-			modMetadataHandler.refresh()
+			_discoverArchiveInstallations()
+			_refreshAllModMetadata()
 
 			return
 
-		discoverArchiveInstallations = () ->
+		_discoverArchiveInstallations = () ->
 			# Make sure the array we're looping stays intact during this operation
 			# so that we won't hit undefined elements.
-			allModMetadata = [].concat(modMetadataHandler.get())
+			allModMetadata = [].concat(modRepository.get())
 
 			existingMods = {}
 
@@ -223,11 +205,11 @@ angular.module('starloader').factory 'modInstaller', [
 			for modMetadata, index in allModMetadata
 				existingMods[modMetadata["internal-name"]] = allModMetadata[index]
 
-			files = fs.readdirSync config.modspath
+			files = fs.readdirSync config.get('modspath')
 			for file in files
 				if file.substr(0, 1) is '_' then continue
 
-				filePath = pathUtil.normalize pathUtil.join(config.modspath, file)
+				filePath = pathUtil.normalize pathUtil.join(config.get('modspath'), file)
 
 				# Mods can only be directories here
 				stat = fs.statSync filePath
@@ -256,62 +238,43 @@ angular.module('starloader').factory 'modInstaller', [
 					else
 						modMetadata.source.path = filePath
 
-					modMetadataHandler.removeMod modMetadata
-					modMetadataHandler.addMod modMetadata
+					modRepository.remove modMetadata
+					modRepository.save modMetadata
 				else
 					modMetadata.source = {type: 'installed', path: file}
-					modMetadataHandler.addMod modMetadata
+					modRepository.save modMetadata
 
-			modMetadataHandler.save()
-			updateBootstraps()
+			_updateBootstraps()
 
-		refreshAllModMetadata = () ->
+		# Refreshes all mod metadata by loading the mods' mod.json files and extending
+		# the existing mod metadata with that.
+		_refreshAllModMetadata = () ->
 			# Make sure the array we're looping stays intact during this operation
 			# so that we won't hit undefined elements.
-			allModMetadata = [].concat(modMetadataHandler.get())
+			allModMetadata = [].concat(modRepository.get())
 
 			for modMetadata in allModMetadata
 				if modMetadata.source.type is 'installed'
-					modPath = pathUtil.join config.modspath, modMetadata.source.path
-					modMetadataFile = pathUtil.join config.modspath, modMetadata.source.path, 'mod.json'
+					modPath = pathUtil.join config.get('modspath'), modMetadata.source.path
+					modMetadataFile = pathUtil.join config.get('modspath'), modMetadata.source.path, 'mod.json'
 				else
 					modPath = modMetadata.source.path
 					modMetadataFile = pathUtil.join modMetadata.source.path, 'mod.json'
 
 				if not fs.existsSync(modPath) or not fs.existsSync(modMetadataFile)
-					modMetadataHandler.removeMod modMetadata
+					modRepository.remove modMetadata
 					continue
 
 				modMetadataFromFile = JSON.parse fs.readFileSync(modMetadataFile)
 
 				refreshedMetadata = angular.extend {}, modMetadata, modMetadataFromFile
 
-				modMetadataHandler.removeMod refreshedMetadata
-				modMetadataHandler.addMod refreshedMetadata
+				modRepository.remove refreshedMetadata
+				modRepository.save refreshedMetadata
 
-			modMetadataHandler.save()
-			updateBootstraps()
-
-		generateMergedPlayerConfig = () ->
-			###
-				TODO BLARGH
-			###
-			allModMetadata = [].concat(modMetadataHandler.get())
-
-			configFiles = pathUtil.join config.gamepath, 'assets/player.config'
-
-			for modMetadata in allModMetadata
-				modPath = ''
-				if modMetadata.source.type is 'installed'
-					modPath = pathUtil.join config.modspath, modMetadata.source.path
-				else
-					modPath = modMetadata.source.path
-
-				if fs.existsSync fileUtil.join(modPath, 'player.config')
-					configFiles.push fileUtil.join(modPath, 'player.config')
+			_updateBootstraps()
 
 		return {
-			updateBootstraps: updateBootstraps
 			installFromZip: installFromZip
 			installFromFolder: installFromFolder
 			uninstall: uninstall

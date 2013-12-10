@@ -1,12 +1,14 @@
 angular.module('starloader').controller 'InitialSettingsModalCtrl', [
-	'$scope', '$route', 'initialSettingsModal', 'createModsFolderModal', 'configHandler',
-	($scope,   $route,   initialSettingsModal,   createModsFolderModal,   configHandler) ->
+	'$scope', '$route', 'initialSettingsModal', 'config',
+	($scope,   $route,   initialSettingsModal,   config) ->
 		fs = require 'fs'
 
-		$scope.config = configHandler.get()
+		fullConfig = config.get()
+		$scope.config = fullConfig
 
 		$scope.saveAndClose = () ->
-			configHandler.save()
+			config.save(fullConfig)
 			initialSettingsModal.deactivate()
+			
 			$route.reload()
 ]

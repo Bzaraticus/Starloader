@@ -1,19 +1,13 @@
 angular.module('starloader').factory 'modFolderHandler', [
-	'configHandler',
-	(configHandler) ->
+	'config',
+	(config) ->
 		fs = require 'fs'
 
 		exists = () ->
-			configHandler.refresh()
-			config = configHandler.get()
-
-			return fs.existsSync config.modspath
+			return fs.existsSync config.get('modspath')
 
 		create = () ->
-			configHandler.refresh()
-			config = configHandler.get()
-
-			fs.mkdirSync config.modspath
+			fs.mkdirSync config.get('modspath')
 			return
 
 		return {
