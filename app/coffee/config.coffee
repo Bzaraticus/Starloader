@@ -24,6 +24,11 @@ angular.module('starloader').config [
 		$routeProvider.when '/about', {
 			templateUrl: './templates/about.html'
 		}
+		
+		$routeProvider.when '/editmod', {
+			templateUrl: './templates/editmod.html'
+			controller: 'EditModCtrl'
+		}
 
 		$routeProvider.otherwise {
 			redirectTo: '/modlist'

@@ -26,7 +26,8 @@
 					<span style="display: none" class="update-internal-name">{{mod['internal-name']}}</span>
 					<span>Update</span>
 				</label>
-				<a href="#" class="btn" ng-click="uninstallMod(mod)">Remove</a>
+				<a href="javascript:void(0)" class="btn" ng-click="editMod(mod)">Edit</a>
+				<a href="javascript:void(0)" class="btn" ng-click="uninstallMod(mod)">Remove</a>
 			</td>
 		</tr>
 	</tbody>
@@ -41,6 +42,10 @@
 		<label class="filechooser-container btn">
 			<input type="file" class="filechooser" onchange="angular.element(this).scope().addFromFolder(this.value)" nwdirectory>
 			<span>Add from folder</span>
+		</label>
+		<label class="filechooser-container btn">
+			<input type="file" class="filechooser" onchange="angular.element(this).scope().createMod(this.value)" nwdirectory>
+			<span>Create mod</span>
 		</label>
 		<a href="javascript:void(0)" class="btn" ng-click="refreshMods()">Refresh</a>
 	</div>

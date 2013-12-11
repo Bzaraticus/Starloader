@@ -1,6 +1,6 @@
 angular.module('starloader').controller 'ModListCtrl', [
-	'$scope', '$route', '$location', 'config', 'modFolderHandler', 'modRepository', 'initialSettingsModal', 'modInstaller', 'confirmationModal', 'infoModal',
-	($scope,   $route,   $location,   config,   modFolderHandler,  modRepository,    initialSettingsModal,   modInstaller,   confirmationModal,   infoModal) ->
+	'$scope', '$route', '$location', 'config', 'modFolderHandler', 'modRepository', 'initialSettingsModal', 'modInstaller', 'confirmationModal', 'infoModal', 'modEditor',
+	($scope,   $route,   $location,   config,   modFolderHandler,  modRepository,    initialSettingsModal,   modInstaller,   confirmationModal,   infoModal,   modEditor) ->
 		fs = require 'fs'
 
 		if not config.get('gamepath')? or not config.get('modspath')?
@@ -79,6 +79,15 @@ angular.module('starloader').controller 'ModListCtrl', [
 
 						$route.reload()
 			}
+			
+		$scope.createMod = (folder) ->
+			modEditor.createMod folder
+			$location.path '/editmod'
+			$scope.$apply()
+
+		$scope.editMod = (mod) ->
+			modEditor.loadMod mod
+			$location.path '/editmod'
 
 		$scope.refreshMods = () ->
 			modInstaller.refreshMods()
