@@ -1,0 +1,34 @@
+.editmod-info {
+	.editmod-info-desc {
+		width: 100px;
+		display: inline-block;
+	}
+	
+	.editmod-info-error {
+		color: #F00;
+		display: inline-block;
+	}
+}
+
+
+.editmod-controls {
+	display: flex;
+
+	.editmod-controls-save {
+		flex: 1 1 auto;
+	}
+	
+	.btn {
+		margin-bottom: 0.4em;
+		white-space: nowrap;
+	}
+}
+
+.editmod-treeview {
+	border: 1px solid #ccc;
+	width: 100%;
+	
+	.editmod-treerow {
+	
+	}
+}

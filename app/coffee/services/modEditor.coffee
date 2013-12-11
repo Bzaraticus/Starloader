@@ -4,21 +4,11 @@ angular.module('starloader').factory 'modEditor', [
 		fs = require 'fs'
 		pathUtil = require 'path'
 
-		metaData =
-			"internal-name": ""
-			"name": ""
-			"description": ""
-			"author": "Unknown"
-			"version": "0.0.0"
-			"url": ""
-			"order": 0
-			"source": {"type": "", "path": ""}
-			"active": true
-		
-		modFiles = []
+		_metaData = modRepository.getDefaultMetadata()		
+		_modFiles = []
 
 		createMod = (folder) ->
-			metaData =
+			_metaData = 
 				"internal-name": ""
 				"name": ""
 				"description": ""
@@ -32,36 +22,36 @@ angular.module('starloader').factory 'modEditor', [
 			_scanFiles()
 
 		loadMod = (mod) ->
-			metaData = mod
+			_metaData = mod
 			_scanFiles()
 			
-		_getFullPath = () ->
-			path = metaData.source.path
-			if metaData.source.type is 'installed'
-				path = pathUtil.join config.get('modspath'), metaData.source.path
-			return path
+		_scanFiles = (folder) ->
+			path = modRepository.getPath _metaData, null, true
+			_modFiles = []
 			
-		_scanFiles = () ->
-			path = _getFullPath()
-			modFiles = []
-			
-		saveMod = () ->
-			path = _getFullPath()
+		saveMod = (meta) ->
+			path = modRepository.getPath meta, null, true
 			modInfoPath = pathUtil.join path, "mod.json"
 			basicMeta = 
-				"internal-name": metaData["internal-name"]
-				"name": metaData["name"]
-				"description": metaData["description"]
-				"author": metaData["author"]
-				"version": metaData["version"]
-				"url": metaData["url"]		
+				"internal-name": meta["internal-name"]
+				"name": meta["name"]
+				"description": meta["description"]
+				"author": meta["author"]
+				"version": meta["version"]
+				"url": meta["url"]		
 				
 			fs.writeFileSync modInfoPath, angular.toJson(basicMeta)
-			modRepository.save(metaData)
+			modRepository.save meta
+			
+		getMetaData = () ->
+			return _metaData
+			
+		getFiles = () ->
+			return _modFiles
 
 		return {
-			metaData: metaData
-			modFiles: modFiles
+			getMetaData: getMetaData
+			getFiles: getFiles
 			createMod: createMod
 			loadMod: loadMod
 			saveMod: saveMod

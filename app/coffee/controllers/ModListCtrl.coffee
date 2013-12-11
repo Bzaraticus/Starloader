@@ -82,6 +82,7 @@ angular.module('starloader').controller 'ModListCtrl', [
 			
 		$scope.createMod = (folder) ->
 			modEditor.createMod folder
+			console.log modEditor
 			$location.path '/editmod'
 			$scope.$apply()
 

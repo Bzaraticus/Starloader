@@ -2,16 +2,40 @@
 
 <h2>Mod Info</h2>
 <div class="editmod-info">
-	<div>Internal name: <input class="editmod-internal-name" value="{{mod['internal-name']}}" /></div>
-	<div>Name: <input class="editmod-name" value="{{mod['name']}}" /></div>
-	<div>Author: <input class="editmod-author" value="{{mod['author']}}" /></div>
-	<div>Version: <input class="editmod-version" value="{{mod['version']}}" /></div>
+	<form name="modinfo">
+		<span class="editmod-info-desc">Internal name:</span>
+		<input name="internalname" ng-model="mod['internal-name']" required />
+		<span class="editmod-info-error" ng-show="modinfo.internalname.$error.required">Required</span>
+		<br />		
+		<span class="editmod-info-desc">Name:</span>
+		<input name="modname" ng-model="mod['name']" required />
+		<span class="editmod-info-error" ng-show="modinfo.modname.$error.required">Required</span>
+		<br />		
+		<span class="editmod-info-desc">Author:</span>
+		<input name="author" ng-model="mod['author']" required />
+		<span class="editmod-info-error" ng-show="modinfo.author.$error.required">Required</span>
+		<br />		
+		<span class="editmod-info-desc">Description:</span>
+		<input name="description" ng-model="mod['description']"/>
+		<br />		
+		<span class="editmod-info-desc">URL:</span>
+		<input name="url" ng-model="mod['url']"/>
+		<br />
+		<span class="editmod-info-desc">Version:</span>
+		<input name="version"  ng-model="mod['version']" required />
+		<span class="editmod-info-error" ng-show="modinfo.version.$error.required">Required</span>
+		<br />
+		<br />
+	</form>
+</div>
+
+<div class="editmod-controls">
+	<div class="editmod-controls-save">
+		<a href="javascript:void(0)" class="btn" ng-click="saveModInfo()">Save</a>
+		<a href="javascript:void(0)" class="btn" ng-click="resetModInfo()">Reset</a>
+		<a href="#/modlist" class="btn">Back</a>
+	</div>
 </div>
 
 <h2>Files</h2>
 <p>rawr</p>
-
-<div class="editmod-controls">
-	<a href="javascript:void(0)" class="btn" ng-click="saveMod()">Save</a>
-	<a href="#/modlist" class="btn">Cancel</a>
-</div>

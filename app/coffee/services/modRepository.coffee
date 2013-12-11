@@ -155,6 +155,9 @@ angular.module('starloader').factory 'modRepository', [
 			activeMods.sort _sortByOrder
 
 			return activeMods
+			
+		getDefaultMetadata = () ->
+			return _defaultModMetadata
 
 		_refreshFromFile()
 
@@ -167,5 +170,6 @@ angular.module('starloader').factory 'modRepository', [
 			getPath: getPath
 			getInstallPath: getInstallPath
 			getActive: getActive
+			getDefaultMetadata: getDefaultMetadata
 		}
 ]
