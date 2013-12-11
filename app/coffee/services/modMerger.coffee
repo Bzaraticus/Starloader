@@ -17,7 +17,7 @@ angular.module('starloader').factory 'modMerger', [
 		multiLineCommentRegex  = /\s*(?!<\")\/\*[^\*]*\*\/(?!\")\s*/g
 
 		getMergeFolder = () ->
-			return pathUtil.join config.get('modspath'), '_merged'
+			return pathUtil.join(config.get('modspath'), '_merged')
 
 		_extend = (source, extensions...) ->
 			if typeof source isnt 'object' then return source

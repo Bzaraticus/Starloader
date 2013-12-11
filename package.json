@@ -1,7 +1,7 @@
 {
   "name": "starloader",
   "author": "Miikka Virtanen",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "app/index.html",
   "window": {
     "toolbar": false,

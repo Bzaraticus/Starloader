@@ -52,7 +52,7 @@ angular.module('starloader').factory 'modInstaller', [
 					assetSources.push modRepository.getPath(modMetadata, bootstrap.sourcePrefix)
 
 				assetSources.push pathUtil.join(bootstrap.sourcePrefix, 'assets')
-				assetSources.push pathUtil.join(bootstrap.sourcePrefix, '_merged')
+				assetSources.push modRepository.getInstallPath('_merged', bootstrap.sourcePrefix)
 				assetSources = assetSources.map (assetSource) -> assetSource.replace /[\\\/]+/g, '/'
 
 				# Get the current bootstrap file and update its asset sources

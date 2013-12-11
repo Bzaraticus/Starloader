@@ -126,20 +126,23 @@ angular.module('starloader').factory 'modRepository', [
 			# If possible, attempt to use a relative path for installed mods
 			if modMetadata.source?.type is 'installed'
 				# If the mods folder exists under the game folder, use a relative path to ensure functionality even if the game is relocated.
-				if not alwaysAbsolute and config.get('modspath').indexOf(config.get('gamepath')) isnt -1
-					preferredModsPath = pathUtil.relative config.get('gamepath'), config.get('modspath')
-
-					# If we have a prefix (usually to handle relative paths from the bootstrap files), apply that
-					preferredModsPath = pathUtil.join relativeModPathPrefix, preferredModsPath
-				else
-					preferredModsPath = config.get('modspath')
-
-				path = pathUtil.join(preferredModsPath, modMetadata.source.path)
+				path = getInstallPath(modMetadata.source.path, relativeModPathPrefix, alwaysAbsolute)
 			else
 				# External mods, even if they exist in the mods folder, use absolute paths
 				path = modMetadata.source.path
 
 			return pathUtil.normalize path
+
+		getInstallPath = (path, relativeModPathPrefix, alwaysAbsolute) ->
+			if not alwaysAbsolute and config.get('modspath').indexOf(config.get('gamepath')) isnt -1
+				preferredModsPath = pathUtil.relative config.get('gamepath'), config.get('modspath')
+
+				# If we have a prefix (usually to handle relative paths from the bootstrap files), apply that
+				preferredModsPath = pathUtil.join relativeModPathPrefix, preferredModsPath
+			else
+				preferredModsPath = config.get('modspath')
+			
+			return pathUtil.join(preferredModsPath, path)
 
 		# Returns active mods
 		getActive = () ->
@@ -162,6 +165,7 @@ angular.module('starloader').factory 'modRepository', [
 			remove: remove
 			refresh: _refreshFromFile
 			getPath: getPath
+			getInstallPath: getInstallPath
 			getActive: getActive
 		}
 ]
