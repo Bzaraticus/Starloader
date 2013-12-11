@@ -1,0 +1,20 @@
+input[type=text],
+input[type=password],
+input[type=date],
+input[type=time],
+input[type=datetime],
+input[type=number],
+textarea {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0.4em;
+
+	border: 1px solid #aaa;
+	border-radius: 2px;
+
+	background-color: #fff;
+}
+
+textarea {
+	height: 100px;
+}

@@ -1,17 +1,17 @@
 angular.module('starloader').controller 'ModListCtrl', [
-	'$scope', '$route', '$location', 'configHandler', 'modFolderHandler', 'modMetadataHandler', 'initialSettingsModal', 'modInstaller', 'confirmationModal', 'infoModal',
-	($scope,   $route,   $location,   configHandler,   modFolderHandler,  modMetadataHandler,    initialSettingsModal,   modInstaller,   confirmationModal,   infoModal) ->
+	'$scope', '$route', '$location', 'config', 'modFolderHandler', 'modRepository', 'initialSettingsModal', 'modInstaller', 'confirmationModal', 'infoModal',
+	($scope,   $route,   $location,   config,   modFolderHandler,  modRepository,    initialSettingsModal,   modInstaller,   confirmationModal,   infoModal) ->
 		fs = require 'fs'
-		config = configHandler.get()
 
-		if not config.gamepath? or not config.modspath?
+		if not config.get('gamepath')? or not config.get('modspath')?
+			console.log config.get(), config.get('gamepath'), config.get('modspath')
 			initialSettingsModal.activate()
 			return
 		
 		if not modFolderHandler.exists()
 			confirmationModal.activate {
 				title: 'The \'mods\' directory does not exist'
-				text: 'Create it?'
+				text: 'Create it? (' + config.get('modspath') + ')'
 				yes: () ->
 					modFolderHandler.create()
 					$route.reload()
@@ -20,25 +20,23 @@ angular.module('starloader').controller 'ModListCtrl', [
 			}
 			return
 
-		modMetadata = modMetadataHandler.get()
-		if modMetadata is null
-			modMetadataHandler.create()
-			$route.reload()
+		console.log 'refreshing'
+		modRepository.refresh()
 
-		$scope.mods = modMetadata
+		allMods = modRepository.get()
+		$scope.mods = allMods
 
-		$scope.saveModMetadata = () ->
-			modMetadataHandler.save()
-			modInstaller.updateBootstraps()
-
-		$scope.sortableOptions =
+		# Options for the directive sortable
+		$scope.sortableOptions = {
 			stop: (e, ui) ->
 				i = 1
-				for mod, index in $scope.mods
-					$scope.mods[index].order = i
+				for mod, index in allMods
+					allMods[index].order = i
 					i++
 
-				$scope.saveModMetadata()
+				modRepository.save allMods
+				modInstaller.applyModInstallations()
+		}
 
 		$scope.addFromFile = (file) ->
 			modInstaller.installFromZip file, (err) ->
@@ -51,7 +49,6 @@ angular.module('starloader').controller 'ModListCtrl', [
 				if err then infoModal.activate {title: 'Error', text: err.toString()}
 
 				$route.reload()
-				
 
 		$scope.updateModFromInput = (input) ->
 			file = input.value
@@ -59,9 +56,10 @@ angular.module('starloader').controller 'ModListCtrl', [
 			modInternalName = $input.siblings('.update-internal-name').html()
 			modToUpdate = null
 
-			for mod, index in $scope.mods
+			for mod, index in allMods
 				if mod['internal-name'] is modInternalName
-					modToUpdate = $scope.mods[index]
+					modToUpdate = allMods[index]
+					break
 
 			if modToUpdate is null
 				return
@@ -84,5 +82,11 @@ angular.module('starloader').controller 'ModListCtrl', [
 
 		$scope.refreshMods = () ->
 			modInstaller.refreshMods()
+			$route.reload()
+
+		$scope.updateModActivity = (mod) ->
+			if mod.active then modInstaller.activateMod(mod)
+			else modInstaller.deactivateMod(mod)
+
 			$route.reload()
 ]

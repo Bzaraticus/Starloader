@@ -1,6 +1,6 @@
 angular.module('starloader').factory 'modInstaller', [
-	'config', 'modRepository',
-	(config,   modRepository) ->
+	'config', 'modRepository', 'modMerger',
+	(config,   modRepository,   modMerger) ->
 		# Node modules
 		fs       = require 'fs'
 		pathUtil = require 'path'
@@ -15,16 +15,34 @@ angular.module('starloader').factory 'modInstaller', [
 			{path: '/linux64', sourcePrefix: '../'}
 		]
 
+		applyModInstallations = () ->
+			_mergeFiles()
+			_updateBootstraps()
+
+		_mergeFiles = () ->
+			filesToMerge = config.get 'filesToMerge'
+
+			if typeof filesToMerge is 'undefined'
+				filesToMerge = 'player.config,quests/quests.config'
+				config.set 'filesToMerge', filesToMerge
+
+			modMerger.clearMergedFolder()
+
+			filesToMergeArray = filesToMerge.split ','
+			for fileToMerge in filesToMergeArray
+				modMerger.mergeFile fileToMerge
+
 		# Returns the absolute paths to the bootstrap files
 		_getBootstrapPaths = () ->
-			return bootstraps.map (bootstrap) ->
+			return _bootstraps.map (bootstrap) ->
 				localBootstrap = angular.extend {}, bootstrap
 				localBootstrap.path = pathUtil.join(config.get('gamepath'), localBootstrap.path, 'bootstrap.config')
 				return localBootstrap
 
 		# Updates the bootstrap files
 		_updateBootstraps = () ->
-			localBootstraps = getBootstrapPaths()
+			console.log 'updating bootstraps'
+			localBootstraps = _getBootstrapPaths()
 			modsToInstall = modRepository.getActive()
 
 			for bootstrap in localBootstraps
@@ -33,7 +51,9 @@ angular.module('starloader').factory 'modInstaller', [
 				for modMetadata in modsToInstall
 					assetSources.push modRepository.getPath(modMetadata, bootstrap.sourcePrefix)
 
-				assetSources.push pathUtil.normalize(pathUtil.join(bootstrap.sourcePrefix, 'assets'))
+				assetSources.push pathUtil.join(bootstrap.sourcePrefix, 'assets')
+				assetSources.push pathUtil.join(bootstrap.sourcePrefix, '_merged')
+				assetSources = assetSources.map (assetSource) -> assetSource.replace /[\\\/]+/g, '/'
 
 				# Get the current bootstrap file and update its asset sources
 				bootstrapData = JSON.parse fs.readFileSync(bootstrap.path)
@@ -104,7 +124,7 @@ angular.module('starloader').factory 'modInstaller', [
 						path: dirname
 
 					modRepository.save modMetadata
-					_updateBootstraps()
+					applyModInstallations()
 
 					callback()
 
@@ -143,7 +163,7 @@ angular.module('starloader').factory 'modInstaller', [
 								path: path
 
 							modRepository.save modMetadata
-							_updateBootstraps()
+							applyModInstallations()
 
 							callback()
 
@@ -164,7 +184,7 @@ angular.module('starloader').factory 'modInstaller', [
 
 			finalize = () ->
 				modRepository.remove modMetadata
-				_updateBootstraps()
+				applyModInstallations()
 
 				if callback then callback()
 
@@ -181,7 +201,7 @@ angular.module('starloader').factory 'modInstaller', [
 		# Uninstalls the folder mod specified by modMetadata
 		_uninstallFromFolder = (modMetadata, callback) ->
 			modRepository.remove modMetadata
-			_updateBootstraps()
+			applyModInstallations()
 
 			callback()
 
@@ -190,13 +210,19 @@ angular.module('starloader').factory 'modInstaller', [
 		refreshMods = () ->
 			_discoverArchiveInstallations()
 			_refreshAllModMetadata()
+			applyModInstallations()
 
 			return
 
 		_discoverArchiveInstallations = () ->
 			# Make sure the array we're looping stays intact during this operation
 			# so that we won't hit undefined elements.
-			allModMetadata = [].concat(modRepository.get())
+			allModMetadata = modRepository.get()
+			updatedMetadata = []
+
+			console.log 'discover archive installations'
+			allModMetadata.map (mod) ->
+				console.log mod.name + ':', mod.order
 
 			existingMods = {}
 
@@ -215,16 +241,22 @@ angular.module('starloader').factory 'modInstaller', [
 				stat = fs.statSync filePath
 				if not stat.isDirectory() then continue
 
-				# Make sure a mod metadata file exists
 				modMetadataFile = pathUtil.join filePath, 'mod.json'
-				if not fs.existsSync(modMetadataFile) then continue
 
-				# Make sure the metadata file can be read and parsed
-				try
-					modMetadata = JSON.parse fs.readFileSync(modMetadataFile)
-				catch
-					continue
-			
+				if fs.existsSync(modMetadataFile)
+					# If the metadata file exists, make sure it can be read and parsed
+					try
+						modMetadata = JSON.parse fs.readFileSync(modMetadataFile)
+					catch
+						continue
+				else
+					# If the metadata file doesn't exist, generate a new one
+					modMetadata = {}
+					modMetadata["internal-name"] = file
+					modMetadata["name"] = modMetadata["internal-name"]
+
+					fs.writeFileSync modMetadataFile, angular.toJson(modMetadata)
+
 				# Make sure every mod's metadata has the "internal-name" property
 				if not modMetadata["internal-name"]? or modMetadata["internal-name"] is ""
 					continue
@@ -237,21 +269,23 @@ angular.module('starloader').factory 'modInstaller', [
 						modMetadata.source.path = file
 					else
 						modMetadata.source.path = filePath
-
-					modRepository.remove modMetadata
-					modRepository.save modMetadata
 				else
 					modMetadata.source = {type: 'installed', path: file}
-					modRepository.save modMetadata
+				
+				# Push the updated metadata to our save queue
+				updatedMetadata.push modMetadata
 
-			_updateBootstraps()
+			modRepository.save updatedMetadata
 
 		# Refreshes all mod metadata by loading the mods' mod.json files and extending
 		# the existing mod metadata with that.
 		_refreshAllModMetadata = () ->
-			# Make sure the array we're looping stays intact during this operation
-			# so that we won't hit undefined elements.
-			allModMetadata = [].concat(modRepository.get())
+			allModMetadata = modRepository.get()
+			allRefreshedMetadata = []
+			
+			console.log 'discover archive installations'
+			allModMetadata.map (mod) ->
+				console.log mod.name + ':', mod.order
 
 			for modMetadata in allModMetadata
 				if modMetadata.source.type is 'installed'
@@ -268,16 +302,33 @@ angular.module('starloader').factory 'modInstaller', [
 				modMetadataFromFile = JSON.parse fs.readFileSync(modMetadataFile)
 
 				refreshedMetadata = angular.extend {}, modMetadata, modMetadataFromFile
+				allRefreshedMetadata.push refreshedMetadata
 
-				modRepository.remove refreshedMetadata
-				modRepository.save refreshedMetadata
+			modRepository.save allRefreshedMetadata
 
-			_updateBootstraps()
+		activateMod = (mod) ->
+			console.log 'activating mod'
+			modMetadata = modRepository.get mod["internal-name"]
+			modMetadata.active = true
+			modRepository.save modMetadata
+
+			applyModInstallations()
+
+		deactivateMod = (mod) ->
+			console.log 'deactivating mod'
+			modMetadata = modRepository.get mod["internal-name"]
+			modMetadata.active = false
+			modRepository.save modMetadata
+
+			applyModInstallations()
 
 		return {
 			installFromZip: installFromZip
 			installFromFolder: installFromFolder
 			uninstall: uninstall
 			refreshMods: refreshMods
+			activateMod: activateMod
+			deactivateMod: deactivateMod,
+			applyModInstallations: applyModInstallations
 		}
 ]

@@ -14,8 +14,8 @@ angular.module('starloader').factory 'modRepository', [
 			"internal-name": ""
 			"name": ""
 			"description": ""
-			"author": ""
-			"version": ""
+			"author": "Unknown"
+			"version": "0.0.0"
 			"url": ""
 			"order": 0
 			"source": {"type": "", "path": ""}
@@ -39,13 +39,13 @@ angular.module('starloader').factory 'modRepository', [
 
 			if _modsFilePath isnt null and fs.existsSync(_modsFilePath)
 				_mods = JSON.parse fs.readFileSync(_modsFilePath, {encoding: 'utf8'})
-				_mods.sort _sortByOrder
+				_cleanMods()
 			else
 				_mods = null
 
 		# Updates mods.json with the current contents of "mods"
 		_updateFile = () ->
-			_fs.writeFileSync _modsFilePath, angular.toJson(_mods)
+			fs.writeFileSync _modsFilePath, angular.toJson(_mods)
 
 		# Tidys up the mods by making sure there are no gaps in ordering
 		_cleanMods = () ->
@@ -68,12 +68,22 @@ angular.module('starloader').factory 'modRepository', [
 
 				return null
 			else
-				return angular.extend {}, _mods
+				return _mods.map (mod) -> angular.extend {}, mod
 
 		# Adds or updates the given mod to mods.json and saves the file
 		save = (inputMod) ->
+			if angular.isArray inputMod
+				for mod, index in inputMod
+					_saveSingle inputMod[index]
+			else
+				_saveSingle inputMod
+
+			_cleanMods()
+			_updateFile()
+
+		_saveSingle = (inputMod) ->
 			saved = false
-			modMetadata = angular.extend _defaultModMetadata, inputMod
+			modMetadata = angular.extend {}, _defaultModMetadata, inputMod
 
 			# Attempt to find an existing mod to update
 			for mod, index in _mods
@@ -84,10 +94,10 @@ angular.module('starloader').factory 'modRepository', [
 
 			# If we didn't find a mod to update, add this as a new one
 			if not saved
-				_mods.push modMetadata
+				if modMetadata.order is 0
+					modMetadata.order = _mods.length + 1
 
-			_cleanMods()
-			_updateFile()
+				_mods.push modMetadata
 
 		# Initializes the repository by creating mods.json
 		init = () ->
@@ -107,15 +117,16 @@ angular.module('starloader').factory 'modRepository', [
 			_updateFile()
 
 		# Returns the path to a mod
-		getPath = (modMetadata, relativeModPathPrefix) ->
+		getPath = (modMetadata, relativeModPathPrefix, alwaysAbsolute) ->
 			if not relativeModPathPrefix? then relativeModPathPrefix = ''
+			if not alwaysAbsolute? then alwaysAbsolute = false
 
 			path = ''
 
 			# If possible, attempt to use a relative path for installed mods
 			if modMetadata.source?.type is 'installed'
 				# If the mods folder exists under the game folder, use a relative path to ensure functionality even if the game is relocated.
-				if config.get('modspath').indexOf(config.get('gamepath')) isnt -1
+				if not alwaysAbsolute and config.get('modspath').indexOf(config.get('gamepath')) isnt -1
 					preferredModsPath = pathUtil.relative config.get('gamepath'), config.get('modspath')
 
 					# If we have a prefix (usually to handle relative paths from the bootstrap files), apply that
@@ -133,12 +144,12 @@ angular.module('starloader').factory 'modRepository', [
 		# Returns active mods
 		getActive = () ->
 			activeMods = []
-			mods = [].concat(_mods)
+			mods = get()
 
-			for modMetadata, index in modCollectionMetadata
-				if modMetadata.active then activeMods.push modCollectionMetadata[index]
+			for modMetadata, index in mods
+				if modMetadata.active then activeMods.push mods[index]
 
-			modsToInstall.sort _sortByOrder
+			activeMods.sort _sortByOrder
 
 			return activeMods
 
@@ -149,5 +160,8 @@ angular.module('starloader').factory 'modRepository', [
 			get: get
 			save: save
 			remove: remove
+			refresh: _refreshFromFile
+			getPath: getPath
+			getActive: getActive
 		}
 ]

@@ -16,7 +16,7 @@
 		<tr ng-repeat="mod in mods">
 			<td class="modlist-mods-order">{{mod.order}}</td>
 			<td class="modlist-mods-active">
-				<input type="checkbox" ng-change="saveModMetadata()" ng-model="mod.active">
+				<input type="checkbox" ng-change="updateModActivity(mod)" ng-model="mod.active">
 			</td>
 			<td class="modlist-mods-name">{{mod.name}} v{{mod.version}}</td>
 			<td class="modlist-mods-author">{{mod.author}}</td>
