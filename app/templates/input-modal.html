@@ -1,0 +1,12 @@
+<div class="modal-background">
+	<div class="modal">
+		<h3>{{title}}</h3>
+		<p>{{text}}</p>
+		<input name="input" ng-model="value" ng-change="validateEntry()"/>
+		<p class="error">{{error}}</p>
+		<p>
+			<a class="btn" href="javascript:void(0)" ng-click="closeAndOkay()">Okay</a>
+			<a class="btn" href="javascript:void(0)" ng-click="closeAndCancel()">Cancel</a>
+		</p>
+	</div>
+</div>

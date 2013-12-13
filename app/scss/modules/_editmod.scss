@@ -14,7 +14,7 @@
 .editmod-controls {
 	display: flex;
 
-	.editmod-controls-save {
+	.editmod-controls-save, .editmod-controls-tree {
 		flex: 1 1 auto;
 	}
 	
@@ -24,11 +24,6 @@
 	}
 }
 
-.editmod-treeview {
-	border: 1px solid #ccc;
-	width: 100%;
-	
-	.editmod-treerow {
-	
-	}
+.editmod-filetree {
+	height: 160px;
 }
